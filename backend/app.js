@@ -1,25 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');//pour importer le package body-parser//
+//j'importe path de Node pour donner accès  au chemin de notre système de fichier//
+const path = require('path');
+const helmet = require("helmet");//pour importer helmet//
+const rateLimit = require("express-rate-limit");//pour limiter le nombre d'appels fait à l'API//
+const db = require('./models');
 
 const app = express();
 
-app.use((req, res, next) => {
-  console.log('Requête reçue !');
-  next();
-});
+//j'enregistre les routes post,user et comment//
+const postRoutes = require('./routes/post');
+const userRoutes = require('./routes/user');
+const commentRoutes = require('./routes/comment');
 
-app.use((req, res, next) => {
-  res.status(201);
-  next();
-});
-
-app.use((req, res, next) => {
-  res.json({ message: 'Votre requête a bien été reçue !' });
-  next();
-});
-
-app.use((req, res, next) => {
-  console.log('Réponse envoyée avec succès !');
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes//
+  max: 100 // limiter à 100 requêtes toutes les 15minutes//
 });
 
 //middleware appliqué à toutes les routes,requêtes envoyées au serveur//
@@ -33,5 +29,15 @@ app.use((req, res, next) => {//middleware général appliqué à toutes les rout
 });
 
 app.use(bodyParser.json());//pour transformer le corps de la requête en json//
+app.use(helmet());//helmet (module de Node)pour sécuriser les en-têtes http//
+app.use(limiter);
+
+//je crée un middleware qui va répondre aux requêtes faites à /images et servir le dossier static image//
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+//j'enregistre les routes attendues par le frontend//
+app.use('/api/auth', userRoutes);
+app.use('/api/comment', commentRoutes);
+app.use('/api/post', postRoutes);
 
 module.exports = app;

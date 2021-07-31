@@ -11,13 +11,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      User.associate = function(models){
+        //models.User va fournir une clè étrangère à models.Post et models.Comment//
+        models.User.hasMany(models.Post),
+        models.User.hasMany(models.Comment)
+      }
     }
   };
   User.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    statut: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'User',

@@ -11,6 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      post.associate = function(models){
+        //models.Post va fournir une clè étrangère à models.Comment//
+        models.Post.hasMany(models.Comment,{
+          onDelete : 'cascade',
+        })
+        //models.Post va recevoir une clè étrangère de models.User//
+        models.Post.belongsTo(models.User,{
+          onDelete : 'cascade',
+          foreignKey : {allowNull: false}
+        });
+      }
     }
   };
   post.init({
